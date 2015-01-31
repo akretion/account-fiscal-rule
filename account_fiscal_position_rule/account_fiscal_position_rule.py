@@ -23,7 +23,7 @@
 ###############################################################################
 
 import time
-from osv import fields, osv
+from openerp.osv import fields, osv
 
 
 class account_fiscal_position_rule(osv.Model):
