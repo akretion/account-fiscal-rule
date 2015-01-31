@@ -20,7 +20,7 @@
 #
 ###############################################################################
 
-from osv import osv
+from openerp.osv import osv
 
 
 class account_invoice(osv.Model):

@@ -33,6 +33,7 @@
     'depends': [
         'account_fiscal_position_rule',
         'sale',
+        'sale_stock',
     ],
     'data': [
         'sale_view.xml',
