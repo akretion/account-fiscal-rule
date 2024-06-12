@@ -4,11 +4,13 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 import json
+import logging
 
 from lxml import etree
 
-from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo import api, fields, models
+
+_logger = logging.getLogger(__name__)
 
 
 class ProductTemplate(models.Model):
@@ -75,15 +77,58 @@ class ProductTemplate(models.Model):
                 }
             )
         elif vals.get("supplier_taxes_id") or vals.get("taxes_id"):
-            raise ValidationError(
-                _(
-                    "You can not create or write products with"
-                    " 'Customer Taxes' or 'Supplier Taxes'\n."
-                    "Please, use instead the 'Fiscal Classification' field."
-                )
-            )
+            self._find_or_create_classification(vals)
         return vals
 
     @api.constrains("categ_id", "fiscal_classification_id")
     def _check_rules_fiscal_classification(self):
         self.env["account.product.fiscal.rule"].check_product_templates_integrity(self)
+
+    def _find_or_create_classification(self, vals):
+        """Find the correct Fiscal classification,
+        depending of the taxes, or create a new one, if no one are found."""
+        # search for matching classication
+        domain = []
+        purchase_tax_ids = vals.get("supplier_taxes_id")
+        sale_tax_ids = vals.get("taxes_id")
+        for elm in ("supplier_taxes_id", "taxes_id"):
+            if elm in vals:
+                del vals[elm]
+        taxe_ids = []
+        if sale_tax_ids:
+            if isinstance(sale_tax_ids, int):
+                sale_tax_ids = [sale_tax_ids]
+            domain.append(("sale_tax_ids", "in", sale_tax_ids))
+            taxe_ids.extend(sale_tax_ids)
+        if purchase_tax_ids:
+            if isinstance(purchase_tax_ids, int):
+                purchase_tax_ids = [purchase_tax_ids]
+            domain.append(("purchase_tax_ids", "in", purchase_tax_ids))
+            taxe_ids.extend(purchase_tax_ids)
+        classification = self.env["account.product.fiscal.classification"].search(
+            domain
+        )
+        if not classification:
+            # Create a dedicate classification for these taxes combination
+            classif_vals = {
+                "name": " ".join(
+                    [x.name for x in self.env["account.tax"].browse(taxe_ids)]
+                ),
+                "company_id": vals.get(
+                    "company_id", self.company_id and self.company_id.id or False
+                ),
+            }
+            if purchase_tax_ids:
+                classif_vals["purchase_tax_ids"] = [
+                    (6, 0, [x for x in purchase_tax_ids])
+                ]
+            if sale_tax_ids:
+                classif_vals["sale_tax_ids"] = [(6, 0, [x for x in sale_tax_ids])]
+            classification = self.env["account.product.fiscal.classification"].create(
+                classif_vals
+            )
+            _logger.info(
+                f"Creating new Fiscal Classification '{classif_vals['name']}'"
+                f" for {self.display_name}"
+            )
+        vals["fiscal_classification_id"] = classification[0].id
