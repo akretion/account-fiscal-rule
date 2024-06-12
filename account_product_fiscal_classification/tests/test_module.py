@@ -198,6 +198,15 @@ class Tests(TransactionCase):
         ].search_count([])
         self.assertEqual(classif_co_after, classif_co + 1)
 
+    def test_no_tax_nor_classification_and_create_one(self):
+        vals = {
+            "name": "Test Product",
+            "company_id": self.env.company.id,
+            "categ_id": self.category_all.id,
+        }
+        product = self.ProductTemplate.with_user(self.env.user).create(vals)
+        self.assertNotEquals(product.fiscal_classification_id, False)
+
     def _create_product(self, user, category, classification):
         vals = {
             "name": "Test Product",
