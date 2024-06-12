@@ -189,7 +189,8 @@ class Tests(TransactionCase):
             "name": "Test Product",
             "company_id": self.env.company.id,
             "categ_id": self.category_all.id,
-            "taxes_id": my_tax.id,
+            "taxes_id": my_tax.ids,
+            "supplier_taxes_id": [],
         }
         product = self.ProductTemplate.with_user(self.env.user).create(vals)
         self.assertNotEqual(product.fiscal_classification_id, False)
@@ -203,6 +204,8 @@ class Tests(TransactionCase):
             "name": "Test Product",
             "company_id": self.env.company.id,
             "categ_id": self.category_all.id,
+            "taxes_id": [],
+            "supplier_taxes_id": [],
         }
         product = self.ProductTemplate.with_user(self.env.user).create(vals)
         self.assertNotEqual(product.fiscal_classification_id, False)
