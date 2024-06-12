@@ -192,7 +192,7 @@ class Tests(TransactionCase):
             "taxes_id": my_tax.id,
         }
         product = self.ProductTemplate.with_user(self.env.user).create(vals)
-        self.assertNotEquals(product.fiscal_classification_id, False)
+        self.assertNotEqual(product.fiscal_classification_id, False)
         classif_co_after = self.env[
             "account.product.fiscal.classification"
         ].search_count([])
@@ -205,7 +205,7 @@ class Tests(TransactionCase):
             "categ_id": self.category_all.id,
         }
         product = self.ProductTemplate.with_user(self.env.user).create(vals)
-        self.assertNotEquals(product.fiscal_classification_id, False)
+        self.assertNotEqual(product.fiscal_classification_id, False)
 
     def _create_product(self, user, category, classification):
         vals = {
