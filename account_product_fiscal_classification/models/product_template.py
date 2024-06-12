@@ -76,7 +76,7 @@ class ProductTemplate(models.Model):
                     "taxes_id": [(6, 0, classification.sale_tax_ids.ids)],
                 }
             )
-        elif create_mode or vals.get("supplier_taxes_id") or vals.get("taxes_id"):
+        elif create_mode or {"supplier_taxes_id", "taxes_id"} & vals.keys():
             self._find_or_create_classification(vals)
         return vals
 
