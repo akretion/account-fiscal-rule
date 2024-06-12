@@ -64,7 +64,7 @@ class ProductTemplate(models.Model):
     # Custom Section
     def _update_vals_fiscal_classification(self, vals):
         FiscalClassification = self.env["account.product.fiscal.classification"]
-        if vals.get("fiscal_classification_id", False):
+        if vals.get("fiscal_classification_id"):
             # We use sudo to have access to all the taxes, even taxes that belong
             # to companies that the user can't access in the current context
             classification = FiscalClassification.sudo().browse(
@@ -76,7 +76,11 @@ class ProductTemplate(models.Model):
                     "taxes_id": [(6, 0, classification.sale_tax_ids.ids)],
                 }
             )
-        elif vals.get("supplier_taxes_id") or vals.get("taxes_id"):
+        elif (
+            vals.get("supplier_taxes_id")
+            or vals.get("taxes_id")
+            or "fiscal_classification_id" not in vals
+        ):
             self._find_or_create_classification(vals)
         return vals
 
@@ -89,41 +93,26 @@ class ProductTemplate(models.Model):
         depending of the taxes, or create a new one, if no one are found."""
         # search for matching classication
         domain = []
-        purchase_tax_ids = vals.get("supplier_taxes_id")
-        sale_tax_ids = vals.get("taxes_id")
+        purchase_tax_ids = vals.get("supplier_taxes_id", [])
+        sale_tax_ids = vals.get("taxes_id", [])
         for elm in ("supplier_taxes_id", "taxes_id"):
             if elm in vals:
                 del vals[elm]
-        taxe_ids = []
         if sale_tax_ids:
-            if isinstance(sale_tax_ids, int):
-                sale_tax_ids = [sale_tax_ids]
             domain.append(("sale_tax_ids", "in", sale_tax_ids))
-            taxe_ids.extend(sale_tax_ids)
         if purchase_tax_ids:
-            if isinstance(purchase_tax_ids, int):
-                purchase_tax_ids = [purchase_tax_ids]
             domain.append(("purchase_tax_ids", "in", purchase_tax_ids))
-            taxe_ids.extend(purchase_tax_ids)
         classification = self.env["account.product.fiscal.classification"].search(
-            domain
+            domain, limit=1
         )
         if not classification:
             # Create a dedicate classification for these taxes combination
-            classif_vals = {
-                "name": " ".join(
-                    [x.name for x in self.env["account.tax"].browse(taxe_ids)]
-                ),
-                "company_id": vals.get(
-                    "company_id", self.company_id and self.company_id.id or False
-                ),
-            }
-            if purchase_tax_ids:
-                classif_vals["purchase_tax_ids"] = [
-                    (6, 0, [x for x in purchase_tax_ids])
-                ]
-            if sale_tax_ids:
-                classif_vals["sale_tax_ids"] = [(6, 0, [x for x in sale_tax_ids])]
+            classif_vals = self.env[
+                "account.product.fiscal.classification"
+            ]._prepare_vals_from_taxes(
+                self.env["account.tax"].browse(purchase_tax_ids),
+                self.env["account.tax"].browse(sale_tax_ids),
+            )
             classification = self.env["account.product.fiscal.classification"].create(
                 classif_vals
             )
@@ -131,4 +120,4 @@ class ProductTemplate(models.Model):
                 f"Creating new Fiscal Classification '{classif_vals['name']}'"
                 f" for {self.display_name}"
             )
-        vals["fiscal_classification_id"] = classification[0].id
+        vals["fiscal_classification_id"] = classification.id
