@@ -104,6 +104,7 @@ Contributors
     * Sébastien BEAU <sebastien.beau@akretion.com>
     * Pierrick Brun <pierrick.brun@akretion.com>
     * Renato Lima <renato.lima@akretion.com>
+    * Thomas BONNERUE <thomas.bonnerue@akretion.com>
 
 * Danimar RIBEIRO
 
