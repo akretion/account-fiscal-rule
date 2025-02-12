@@ -115,6 +115,13 @@ class ProductTemplate(models.Model):
     def _apply_classification_taxes(self):
         # update or replace 'taxes_id' and 'supplier_taxes_id'
         classification = self.fiscal_classification_id
+        # Be carefull we want to read all the taxes for all company
+        # so we use sudo! But if the field purchase_tax_ids / sale_tax_ids
+        # have been read before without sudo the value of the field
+        # will be read from the cache and so sudo will be useless
+        # so let's flush and invalidate the cache
+        classification.flush()
+        classification.env.cache.invalidate()
         tax_vals = {
             "supplier_taxes_id": [(6, 0, classification.sudo().purchase_tax_ids.ids)],
             "taxes_id": [(6, 0, classification.sudo().sale_tax_ids.ids)],
