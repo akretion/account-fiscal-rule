@@ -133,10 +133,6 @@ class ProductTemplate(models.Model):
             elif "supplier_taxes_id" in vals.keys() or "taxes_id" in vals.keys():
                 # product template Single update mode
                 fc_obj = self.env["account.product.fiscal.classification"]
-                if len(self) != 1:
-                    raise ValidationError(
-                        _("You cannot change Taxes for many Products.")
-                    )
                 purchase_tax_ids = [x.id for x in template.sudo().supplier_taxes_id]
                 sale_tax_ids = [x.id for x in template.sudo().taxes_id]
                 fc_id = fc_obj.find_or_create(
