@@ -81,7 +81,8 @@ class ProductProduct(models.Model):
             for ecotaxline_prod in product.all_ecotax_line_product_ids:
                 ecotax_cls = ecotaxline_prod.classification_id
                 if ecotax_cls.ecotax_type == "weight_based":
-                    # Recompute ecotaxe amount because product weight can be different for variant
+                    # Recompute ecotaxe amount
+                    # because product weight can be different for variant
                     amount = ecotax_cls.ecotax_coef * (
                         product.weight or product.product_tmpl_id.weight or 0.0
                     )
