@@ -75,7 +75,6 @@ class ProductProduct(models.Model):
     )
     def _compute_product_ecotax(self):
         for product in self:
-            amount_ecotax = 0.0
             weight_based_ecotax = 0.0
             fixed_ecotax = 0.0
             for ecotaxline_prod in product.all_ecotax_line_product_ids:
@@ -89,10 +88,8 @@ class ProductProduct(models.Model):
                     if ecotaxline_prod.force_amount:
                         amount = ecotaxline_prod.force_amount
                     weight_based_ecotax += amount
-                    amount_ecotax += amount
                 else:
                     fixed_ecotax += ecotaxline_prod.amount
-                    amount_ecotax += amount
             product.fixed_ecotax = fixed_ecotax
             product.weight_based_ecotax = weight_based_ecotax
-            product.ecotax_amount = amount_ecotax
+            product.ecotax_amount = fixed_ecotax + weight_based_ecotax
