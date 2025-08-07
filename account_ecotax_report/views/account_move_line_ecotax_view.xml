@@ -7,7 +7,7 @@
     <record id="account_move_line_ecotax_tree" model="ir.ui.view">
         <field name="model">account.move.line.ecotax</field>
         <field name="arch" type="xml">
-             <tree create="false" delete="false" edit="false">
+            <tree create="false" delete="false" edit="false">
                 <field name="classification_id" />
                 <field name="invoice_date" optional="show" />
                 <field name="invoice_state" optional="hide" />
@@ -22,19 +22,19 @@
                 <field name="quantity" optional="hide" sum="Total" />
                 <field name="weight" optional="hide" sum="Total" />
                 <field name="currency_id" optional="hide" />
-             </tree>
+            </tree>
         </field>
     </record>
     <record id="account_move_line_ecotax_pivot" model="ir.ui.view">
-         <field name="name">account.move.line.ecotax.pivot</field>
-         <field name="model">account.move.line.ecotax</field>
-         <field name="arch" type="xml">
-             <pivot string="Ecotax line Analysis" sample="1">
-                 <field name="collector_id" type="col" />
-                 <field name="invoice_date" type="row" />
-                 <field name="amount_total" type="measure" />
-             </pivot>
-         </field>
+        <field name="name">account.move.line.ecotax.pivot</field>
+        <field name="model">account.move.line.ecotax</field>
+        <field name="arch" type="xml">
+            <pivot string="Ecotax line Analysis" sample="1">
+                <field name="collector_id" type="col" />
+                <field name="invoice_date" type="row" />
+                <field name="amount_total" type="measure" />
+            </pivot>
+        </field>
     </record>
     <record id="account_move_line_ecotax_search" model="ir.ui.view">
         <field name="model">account.move.line.ecotax</field>
