@@ -4,7 +4,7 @@
 {
     "name": "Ecotax Reporting",
     "summary": "Ecotax Reporting add fields and view to anlysis ecotaxe ",
-    "version": "16.0.1.0.0",
+    "version": "18.0.1.0.0",
     "author": "Akretion, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/account-fiscal-rule",
     "category": "Localization/Account Taxes",

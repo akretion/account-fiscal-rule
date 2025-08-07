@@ -7,7 +7,7 @@
     <record id="account_move_line_ecotax_tree" model="ir.ui.view">
         <field name="model">account.move.line.ecotax</field>
         <field name="arch" type="xml">
-            <tree create="false" delete="false" edit="false">
+            <list create="false" delete="false" edit="false">
                 <field name="classification_id" />
                 <field name="invoice_date" optional="show" />
                 <field name="invoice_state" optional="hide" />
@@ -22,7 +22,7 @@
                 <field name="quantity" optional="hide" sum="Total" />
                 <field name="weight" optional="hide" sum="Total" />
                 <field name="currency_id" optional="hide" />
-            </tree>
+            </list>
         </field>
     </record>
     <record id="account_move_line_ecotax_pivot" model="ir.ui.view">
@@ -94,7 +94,7 @@
     <record id="action_account_move_line_ecotax" model="ir.actions.act_window">
         <field name="name">Ecotax line Analysis</field>
         <field name="res_model">account.move.line.ecotax</field>
-        <field name="view_mode">tree,pivot</field>
+        <field name="view_mode">list,pivot</field>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">
                 Create ecotax line via invoice.
