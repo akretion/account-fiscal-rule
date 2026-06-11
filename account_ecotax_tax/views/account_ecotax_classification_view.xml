@@ -23,6 +23,7 @@
                         widget="many2many_tags"
                         context="{'default_type_tax_use':'purchase', 'search_default_purchase': 1}"
                     />
+                    <field name="country_id" />
                 </group>
             </xpath>
         </field>

@@ -69,15 +69,25 @@ class AcountMoveLine(models.Model):
 
     def _get_computed_taxes(self):
         tax_ids = super()._get_computed_taxes()
+        country = self.move_id.partner_id.country_id
+
+        # Grouper par organisme (groupe de taxe)
+        ecotax_by_group = {}
+        for classif in self.product_id.all_ecotax_line_product_ids:
+            if (
+                classif.classification_id.country_id == country
+                or not classif.classification_id.country_id
+            ):
+                group_key = classif.classification_id.sale_ecotax_ids
+                amount = classif.amount
+                ecotax_by_group[group_key] = ecotax_by_group.get(group_key, 0) + amount
+
         ecotax_ids = self.env["account.tax"]
         if self.move_id.is_sale_document(include_receipts=True):
-            # Out invoice.
-            sale_ecotaxs = self.product_id.all_ecotax_line_product_ids.mapped(
-                "classification_id"
-            ).mapped("sale_ecotax_ids")
-            ecotax_ids = sale_ecotaxs.filtered(
-                lambda tax: tax.company_id == self.move_id.company_id
-            )
+            for tax, amount in ecotax_by_group.items():
+                ecotax_ids |= tax.copy(
+                    {"amount_type": "fixed", "amount": amount, "active": False}
+                )
 
         elif self.move_id.is_purchase_document(include_receipts=True):
             # In invoice.

@@ -24,3 +24,4 @@ class AccountEcotaxClassification(models.Model):
         string="Purchase EcoTax",
         domain=[("is_ecotax", "=", True), ("type_tax_use", "=", "purchase")],
     )
+    country_id = fields.Many2one("res.country")
