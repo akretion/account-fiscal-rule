@@ -12,7 +12,7 @@
         <field name="is_ecotax" eval="True" />
         <field
             name="formula"
-        >quantity and product.fixed_ecotax * quantity or 0.0</field>
+        >quantity and product.country_fixed_ecotax * quantity or 0.0</field>
         <field name="price_include_override">tax_excluded</field>
         <field name="include_base_amount" eval="True" />
         <field name="sequence" eval="0" />

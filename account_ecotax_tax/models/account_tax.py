@@ -22,16 +22,42 @@ class AccountTax(models.Model):
         if self.is_ecotax:
             self.amount_type = "code"
             self.include_base_amount = True
-            self.formula = """
-quantity and product.fixed_ecotax * quantity or 0.0
-            """
+            self.formula = "quantity and product.country_fixed_ecotax * quantity or 0.0"
 
     def _eval_taxes_computation_prepare_product_fields(self):
-        # In Odoo 18, product is passed as a dictionary in the eval context.
-        # We need to specify which fields should be included in this dictionary.
         return super()._eval_taxes_computation_prepare_product_fields() | {
             "fixed_ecotax",
             "weight_based_ecotax",
             "ecotax_amount",
             "weight",
+            "country_fixed_ecotax",
         }
+
+    @api.model
+    def compute_all(
+        self,
+        price_unit,
+        currency=None,
+        quantity=1.0,
+        product=None,
+        partner=None,
+        **kwargs,
+    ):
+        """Pass through (actual country logic in account_ecotax_tax_country)."""
+        return super().compute_all(
+            price_unit,
+            currency=currency,
+            quantity=quantity,
+            product=product,
+            partner=partner,
+            **kwargs,
+        )
+
+
+class ProductTemplate(models.Model):
+    _inherit = "product.template"
+
+    country_fixed_ecotax = fields.Float(
+        default=0.0,
+        help="Country-specific fixed ecotax, set at tax computation time.",
+    )
