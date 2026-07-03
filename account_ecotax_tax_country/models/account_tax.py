@@ -20,7 +20,7 @@ class AccountTax(models.Model):
         """Inject country-specific ecotax into product before computation."""
         backup = None
         if product:
-            tmpl = product.product_tmpl_id
+            tmpl = getattr(product, "product_tmpl_id", product)
             if partner and partner.country_id:
                 amount = tmpl._get_fixed_ecotax_for_country(partner.country_id.code)
             else:
@@ -39,7 +39,7 @@ class AccountTax(models.Model):
             )
         finally:
             if backup is not None:
-                product.product_tmpl_id.country_fixed_ecotax = backup
+                getattr(product, "product_tmpl_id", product).country_fixed_ecotax = backup
 
 
 class ProductTemplate(models.Model):
