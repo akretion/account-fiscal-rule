@@ -8,6 +8,10 @@
         <field name="product_status">M</field>
         <field name="supplier_status">MAN</field>
         <field name="country_amounts" eval="{'FR': 0.94, 'IT': 0.50, 'ES': 0.80}" />
+        <field
+            name="sale_ecotax_ids"
+            eval="[Command.set([ref('account_ecotax_tax.tax_ecotax')])]"
+        />
     </record>
 
     <!-- Demo product template -->
