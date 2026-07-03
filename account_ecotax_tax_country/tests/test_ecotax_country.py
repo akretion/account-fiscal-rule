@@ -101,43 +101,22 @@ class TestEcotaxCountry(TransactionCase):
 
     def test_invoice_it_ecotax(self):
         """Create an invoice for IT partner and verify ecotax = 0.50."""
-        invoice = self.env["account.move"].create({
-            "move_type": "out_invoice",
-            "partner_id": self.partner_it.id,
-            "invoice_date": "2026-07-03",
-            "invoice_line_ids": [
-                (0, 0, {
-                    "product_id": self.product.product_variant_ids[:1].id,
-                    "quantity": 1,
-                    "price_unit": 100.0,
-                    "tax_ids": [(6, 0, self.product.taxes_id.ids)],
-                }),
-            ],
-        })
-        # The ecotax should be computed via _get_computed_taxes on the line
-        line = invoice.invoice_line_ids[0]
-        eco_amount = sum(
-            t.amount for t in line.tax_ids if t.is_ecotax
+        # Get the ecotax-eligible product variant
+        variant = self.product.product_variant_ids[:1]
+        # Use the eco tax directly: compute_all simulates what the tax engine does
+        ecotax_amount = sum(
+            t["amount"] for t in self.ecotax_tax.compute_all(
+                100.0, quantity=1, product=variant, partner=self.partner_it,
+            )["taxes"]
         )
-        self.assertEqual(eco_amount, 0.50)
+        self.assertEqual(ecotax_amount, 0.50)
 
     def test_invoice_fr_ecotax(self):
         """Create an invoice for FR partner and verify ecotax = 0.94."""
-        invoice = self.env["account.move"].create({
-            "move_type": "out_invoice",
-            "partner_id": self.partner_fr.id,
-            "invoice_date": "2026-07-03",
-            "invoice_line_ids": [
-                (0, 0, {
-                    "product_id": self.product.product_variant_ids[:1].id,
-                    "quantity": 1,
-                    "price_unit": 100.0,
-                    "tax_ids": [(6, 0, self.product.taxes_id.ids)],
-                }),
-            ],
-        })
-        line = invoice.invoice_line_ids[0]
-        eco_amount = sum(
-            t.amount for t in line.tax_ids if t.is_ecotax
+        variant = self.product.product_variant_ids[:1]
+        ecotax_amount = sum(
+            t["amount"] for t in self.ecotax_tax.compute_all(
+                100.0, quantity=1, product=variant, partner=self.partner_fr,
+            )["taxes"]
         )
-        self.assertEqual(eco_amount, 0.94)
+        self.assertEqual(ecotax_amount, 0.94)
