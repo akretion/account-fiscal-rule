@@ -17,30 +17,23 @@ class AccountTax(models.Model):
         partner=None,
         **kwargs,
     ):
-        """Inject country-specific ecotax into product before computation."""
-        backup = None
-        tmpl = None
-        if product:
+        """Inject country-specific ecotax via product context."""
+        if product and partner and partner.country_id:
             tmpl = getattr(product, "product_tmpl_id", product)
-            if partner and partner.country_id:
-                amount = tmpl._get_fixed_ecotax_for_country(
-                    partner.country_id.code,
-                )
-                backup = tmpl.country_fixed_ecotax
-                tmpl.country_fixed_ecotax = amount
-                tmpl.flush_recordset()
-        try:
-            return super().compute_all(
-                price_unit,
-                currency=currency,
-                quantity=quantity,
-                product=product,
-                partner=partner,
-                **kwargs,
+            amount = tmpl._get_fixed_ecotax_for_country(
+                partner.country_id.code,
             )
-        finally:
-            if backup is not None and tmpl:
-                tmpl.country_fixed_ecotax = backup
+            product = product.with_context(
+                country_fixed_ecotax=amount,
+            )
+        return super().compute_all(
+            price_unit,
+            currency=currency,
+            quantity=quantity,
+            product=product,
+            partner=partner,
+            **kwargs,
+        )
 
 
 class ProductTemplate(models.Model):
