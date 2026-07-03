@@ -17,16 +17,8 @@ class AccountTax(models.Model):
         partner=None,
         **kwargs,
     ):
-        """Inject country-specific ecotax via product context."""
-        if product and partner and partner.country_id:
-            tmpl = getattr(product, "product_tmpl_id", product)
-            amount = tmpl._get_fixed_ecotax_for_country(
-                partner.country_id.code,
-            )
-            product = product.with_context(
-                country_fixed_ecotax=amount,
-            )
-        return super().compute_all(
+        """Inject country-specific ecotax by adjusting result."""
+        result = super().compute_all(
             price_unit,
             currency=currency,
             quantity=quantity,
@@ -34,6 +26,17 @@ class AccountTax(models.Model):
             partner=partner,
             **kwargs,
         )
+        # Override ecotax amounts when partner country has a specific rate
+        if product and partner and partner.country_id:
+            tmpl = getattr(product, "product_tmpl_id", product)
+            amount = tmpl._get_fixed_ecotax_for_country(
+                partner.country_id.code,
+            )
+            # Only adjust if different from default (which the formula already computed)
+            if amount != tmpl.fixed_ecotax:
+                for tax_dict in result["taxes"]:
+                    tax_dict["amount"] = amount * quantity
+        return result
 
 
 class ProductTemplate(models.Model):
