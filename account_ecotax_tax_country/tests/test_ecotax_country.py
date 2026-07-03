@@ -98,3 +98,46 @@ class TestEcotaxCountry(TransactionCase):
             partner=None,
         )
         self.assertEqual(sum(t["amount"] for t in res["taxes"]), 1.88)
+
+    def test_invoice_it_ecotax(self):
+        """Create an invoice for IT partner and verify ecotax = 0.50."""
+        invoice = self.env["account.move"].create({
+            "move_type": "out_invoice",
+            "partner_id": self.partner_it.id,
+            "invoice_date": "2026-07-03",
+            "invoice_line_ids": [
+                (0, 0, {
+                    "product_id": self.product.product_variant_ids[:1].id,
+                    "quantity": 1,
+                    "price_unit": 100.0,
+                    "tax_ids": [(6, 0, self.product.taxes_id.ids)],
+                }),
+            ],
+        })
+        # The ecotax should be computed via _get_computed_taxes on the line
+        line = invoice.invoice_line_ids[0]
+        eco_amount = sum(
+            t.amount for t in line.tax_ids if t.is_ecotax
+        )
+        self.assertEqual(eco_amount, 0.50)
+
+    def test_invoice_fr_ecotax(self):
+        """Create an invoice for FR partner and verify ecotax = 0.94."""
+        invoice = self.env["account.move"].create({
+            "move_type": "out_invoice",
+            "partner_id": self.partner_fr.id,
+            "invoice_date": "2026-07-03",
+            "invoice_line_ids": [
+                (0, 0, {
+                    "product_id": self.product.product_variant_ids[:1].id,
+                    "quantity": 1,
+                    "price_unit": 100.0,
+                    "tax_ids": [(6, 0, self.product.taxes_id.ids)],
+                }),
+            ],
+        })
+        line = invoice.invoice_line_ids[0]
+        eco_amount = sum(
+            t.amount for t in line.tax_ids if t.is_ecotax
+        )
+        self.assertEqual(eco_amount, 0.94)
