@@ -52,12 +52,3 @@ class AccountTax(models.Model):
             partner=partner,
             **kwargs,
         )
-
-
-class ProductTemplate(models.Model):
-    _inherit = "product.template"
-
-    country_fixed_ecotax = fields.Float(
-        default=0.0,
-        help="Country-specific fixed ecotax, set at tax computation time.",
-    )
