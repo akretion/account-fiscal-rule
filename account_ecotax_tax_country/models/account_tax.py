@@ -17,26 +17,38 @@ class AccountTax(models.Model):
         partner=None,
         **kwargs,
     ):
-        """Inject country-specific ecotax by adjusting result."""
-        result = super().compute_all(
-            price_unit,
-            currency=currency,
-            quantity=quantity,
-            product=product,
-            partner=partner,
-            **kwargs,
-        )
-        # Override ecotax amounts when partner country has a specific rate
+        """Inject country-specific ecotax by overriding fixed_ecotax on the product."""
+        backup = None
+        tmpl = None
         if product and partner and partner.country_id:
             tmpl = getattr(product, "product_tmpl_id", product)
-            amount = tmpl._get_fixed_ecotax_for_country(
+            country_amount = tmpl._get_fixed_ecotax_for_country(
                 partner.country_id.code,
             )
-            # Only adjust if different from default (which the formula already computed)
-            if amount != tmpl.fixed_ecotax:
-                for tax_dict in result["taxes"]:
-                    tax_dict["amount"] = amount * quantity
-        return result
+            if country_amount != tmpl.fixed_ecotax:
+                backup = tmpl.fixed_ecotax
+                # Bypass computed field inverse: write directly to DB
+                self.env.cr.execute(
+                    "UPDATE product_template SET fixed_ecotax = %s WHERE id = %s",
+                    (country_amount, tmpl.id),
+                )
+                tmpl.invalidate_recordset(["fixed_ecotax"])
+        try:
+            return super().compute_all(
+                price_unit,
+                currency=currency,
+                quantity=quantity,
+                product=product,
+                partner=partner,
+                **kwargs,
+            )
+        finally:
+            if backup is not None and tmpl:
+                self.env.cr.execute(
+                    "UPDATE product_template SET fixed_ecotax = %s WHERE id = %s",
+                    (backup, tmpl.id),
+                )
+                tmpl.invalidate_recordset(["fixed_ecotax"])
 
 
 class ProductTemplate(models.Model):
