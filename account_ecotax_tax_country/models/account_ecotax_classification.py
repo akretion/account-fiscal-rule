@@ -13,3 +13,9 @@ class AccountEcotaxClassification(models.Model):
         '{"FR": 0.94, "IT": 0.50, "ES": 0.80}. '
         "If no entry for a country, the default_fixed_ecotax is used.",
     )
+    auto_create_tax_for_company = fields.Boolean(
+        default=False,
+        help="When a new company is created, automatically create a copy of "
+        "the ecotax tax for that company if its country is present in "
+        "Country-specific Amounts.",
+    )

@@ -1,17 +1,17 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="ecotax_classification_form_country" model="ir.ui.view">
         <field name="name">account.ecotax.classification.form.country</field>
         <field name="model">account.ecotax.classification</field>
-        <field name="inherit_id"
-               ref="account_ecotax.ecotax_classification_form" />
+        <field
+            name="inherit_id"
+            ref="account_ecotax.ecotax_classification_form"
+        />
         <field name="arch" type="xml">
-            <xpath expr="//group[@name='ecotax_settings']" position="after">
-                <separator string="Country-specific Amounts" colspan="4" />
-                <field name="country_amounts" colspan="4"
-                       widget="json"
-                       options="{'layout': 'key_value'}" />
-            </xpath>
+            <group name="ecotax_settings" position="inside">
+                <field name="country_amounts" />
+                <field name="auto_create_tax_for_company" />
+            </group>
         </field>
     </record>
 </odoo>
