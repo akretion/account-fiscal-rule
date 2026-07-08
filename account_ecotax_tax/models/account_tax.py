@@ -32,23 +32,3 @@ class AccountTax(models.Model):
             "weight",
             "country_fixed_ecotax",
         }
-
-    @api.model
-    def compute_all(
-        self,
-        price_unit,
-        currency=None,
-        quantity=1.0,
-        product=None,
-        partner=None,
-        **kwargs,
-    ):
-        """Pass through (actual country logic in account_ecotax_tax_country)."""
-        return super().compute_all(
-            price_unit,
-            currency=currency,
-            quantity=quantity,
-            product=product,
-            partner=partner,
-            **kwargs,
-        )

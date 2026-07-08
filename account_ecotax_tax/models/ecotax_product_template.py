@@ -12,6 +12,7 @@ class ProductTemplate(models.Model):
         help="Country-specific fixed ecotax, set via context at tax computation.",
     )
 
+    @api.depends("fixed_ecotax")
     def _compute_country_fixed_ecotax(self):
         for rec in self:
             rec.country_fixed_ecotax = self.env.context.get(
