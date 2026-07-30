@@ -24,6 +24,7 @@ class EcotaxLineMixin(models.AbstractModel):
         compute="_compute_ecotax",
         help="Ecotax Amount computed from Classification or Manual ecotax",
         store=True,
+        precompute=True,
     )
     force_amount_unit = fields.Float(
         digits="Ecotax",
@@ -35,6 +36,7 @@ class EcotaxLineMixin(models.AbstractModel):
         compute="_compute_ecotax",
         help="Ecotax Amount total computed from Classification or forced ecotax amount",
         store=True,
+        precompute=True,
     )
     quantity = fields.Float(digits="Product Unit of Measure", readonly=True)
 
