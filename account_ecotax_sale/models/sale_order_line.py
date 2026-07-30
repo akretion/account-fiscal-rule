@@ -14,17 +14,23 @@ class SaleOrderLine(models.Model):
         compute="_compute_ecotax_line_ids",
         store=True,
         readonly=False,
+        precompute=True,
         string="Ecotax Lines",
         copy=True,
     )
     subtotal_ecotax = fields.Float(
-        string="Ecotax", digits="Ecotax", store=True, compute="_compute_ecotax"
+        string="Ecotax",
+        digits="Ecotax",
+        store=True,
+        compute="_compute_ecotax",
+        precompute=True,
     )
     ecotax_amount_unit = fields.Float(
         digits="Ecotax",
         string="Ecotax Unit",
         store=True,
         compute="_compute_ecotax",
+        precompute=True,
     )
 
     def _get_ecotax_amounts(self):
@@ -48,6 +54,12 @@ class SaleOrderLine(models.Model):
 
     def _get_new_vals_list(self):
         self.ensure_one()
+        if not self.product_id:
+            return []
+        country = (
+            self.order_id.partner_shipping_id.country_id
+            or self.order_id.partner_id.country_id
+        )
         new_vals_list = [
             Command.create(
                 {
@@ -55,11 +67,13 @@ class SaleOrderLine(models.Model):
                     "force_amount_unit": ecotaxline_prod.force_amount,
                 }
             )
-            for ecotaxline_prod in self.product_id.all_ecotax_line_product_ids
+            for ecotaxline_prod in self.product_id._get_country_eligible_classification(
+                country
+            )
         ]
         return new_vals_list
 
-    @api.depends("product_id")
+    @api.depends("product_id", "order_id.partner_id", "order_id.partner_shipping_id")
     def _compute_ecotax_line_ids(self):
         """Unlink and recreate ecotax_lines when modifying the product_id."""
         for line in self:
