@@ -1,0 +1,30 @@
+<odoo>
+    <!-- Demo: Ecotax classification with per-country amounts -->
+    <record id="ecotax_classification_demo" model="account.ecotax.classification">
+        <field name="name">DEEE Multi-Country Demo</field>
+        <field name="code">DEEE-DEMO</field>
+        <field name="ecotax_type">fixed</field>
+        <field name="default_fixed_ecotax" eval="0.94" />
+        <field name="product_status">M</field>
+        <field name="supplier_status">MAN</field>
+        <field name="country_amounts" eval="{'FR': 0.94, 'IT': 0.50, 'ES': 0.80}" />
+        <field name="auto_create_tax_for_company" eval="True" />
+        <field
+            name="sale_ecotax_ids"
+            eval="[Command.set([ref('account_ecotax_tax.tax_ecotax')])]"
+        />
+    </record>
+
+    <!-- Demo product template -->
+    <record id="product_template_demo" model="product.template">
+        <field name="name">Ecotax Multi-Country Demo Product</field>
+        <field name="default_code">ECO-MULTI-001</field>
+        <field name="type">consu</field>
+        <field name="list_price" eval="100.0" />
+        <field name="ecotax_line_product_ids" eval="[
+            Command.create({
+                'classification_id': ref('ecotax_classification_demo'),
+            }),
+        ]" />
+    </record>
+</odoo>

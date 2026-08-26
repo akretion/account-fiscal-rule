@@ -1,0 +1,5 @@
+from . import account_ecotax_classification
+from . import account_move_line
+from . import account_tax
+from . import ecotax_product_template
+from . import res_company
