@@ -24,10 +24,17 @@ class AccountMoveLineEcotax(models.Model):
         related="account_move_line_id.product_id",
         readonly=True,
         store=True,
+        precompute=True,
     )
     quantity = fields.Float(
-        related="account_move_line_id.quantity", readonly=True, store=True
+        related="account_move_line_id.quantity",
+        readonly=True,
+        store=True,
+        precompute=True,
     )
     currency_id = fields.Many2one(
-        related="account_move_line_id.currency_id", readonly=True, store=True
+        related="account_move_line_id.currency_id",
+        readonly=True,
+        store=True,
+        precompute=True,
     )
