@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_partner_form_ecotax_exemption" model="ir.ui.view">
+        <field name="name">res.partner.form.ecotax.exemption</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account.view_partner_property_form" />
+        <field name="arch" type="xml">
+            <xpath
+                expr="//page[@name='accounting']//group[@id='invoice_send_settings']"
+                position="after"
+            >
+                <group
+                    string="Ecotax"
+                    name="ecotax_exemption"
+                    groups="account.group_account_invoice,account.group_account_readonly"
+                >
+                    <field name="ecotax_exempt" />
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
