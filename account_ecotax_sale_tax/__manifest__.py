@@ -11,7 +11,6 @@
     "category": "Localization/Account Taxes",
     "license": "AGPL-3",
     "depends": ["account_ecotax_sale", "account_ecotax_tax"],
-    "data": ["views/sale_view.xml"],
     "installable": True,
     "auto_install": True,
 }
